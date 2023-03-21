@@ -9,7 +9,7 @@ if %errorLevel% NEQ 0 (
 
 REM Set the base paths for CUDA and cuDNN installations
 set cudaBasePath=C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA
-set cudnnBasePath=C:\cudnn
+set cudnnBasePath=C:\Program Files\NVIDIA\CUDNN
 
 REM Function to list available CUDA versions
 FOR /F "tokens=*" %%G IN ('dir /b /ad "%cudaBasePath%"') DO (

@@ -6,7 +6,7 @@ if (-NOT ([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdenti
 
 # Set the base paths for CUDA and cuDNN installations
 $cudaBasePath = "C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA"
-$cudnnBasePath = "C:\cudnn"
+$cudnnBasePath = "C:\Program Files\NVIDIA\CUDNN"
 
 # Function to list available CUDA versions
 function Get-CudaVersions {
