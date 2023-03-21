@@ -1,0 +1,51 @@
+# Check for administrative privileges
+if (-NOT ([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole] "Administrator")) {
+    Write-Error "This script must be run with administrative privileges."
+    exit 1
+}
+
+# Function to list available CUDA versions
+function Get-CudaVersions {
+    $cudaBasePath = "C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA"
+    return (Get-ChildItem -Path $cudaBasePath -Directory).Name
+}
+
+# Function to list available cuDNN versions
+function Get-CudnnVersions {
+    $cudnnBasePath = "C:\cudnn"
+    return (Get-ChildItem -Path $cudnnBasePath -Directory).Name
+}
+
+# Get available CUDA and cuDNN versions
+$availableCudaVersions = Get-CudaVersions
+$availableCudnnVersions = Get-CudnnVersions
+
+# Display available CUDA versions
+Write-Host "Available CUDA Versions:"
+$availableCudaVersions
+
+# Get user input for selecting a CUDA version
+$selectedCudaVersion = Read-Host -Prompt "Enter the desired CUDA version from the list above"
+
+# Display available cuDNN versions
+Write-Host "Available cuDNN Versions:"
+$availableCudnnVersions
+
+# Get user input for selecting a cuDNN version
+$selectedCudnnVersion = Read-Host -Prompt "Enter the desired cuDNN version from the list above"
+
+# Set the CUDA_PATH and CUDNN_PATH environment variables
+$cudaPath = "C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\$selectedCudaVersion"
+$cudnnPath = "C:\cudnn\$selectedCudnnVersion"
+
+[System.Environment]::SetEnvironmentVariable("CUDA_PATH", $cudaPath, "User")
+[System.Environment]::SetEnvironmentVariable("CUDNN_PATH", $cudnnPath, "User")
+
+# Update the PATH environment variable
+$path = [System.Environment]::GetEnvironmentVariable("PATH", "User")
+$newPath = ($path.Split(";") | Where-Object { $_ -notmatch "NVIDIA GPU Computing Toolkit\\CUDA" -and $_ -notmatch "cudnn" }) -join ";"
+$newPath += ";$cudaPath\bin;$cudaPath\libnvvp;$cudnnPath\bin"
+
+[System.Environment]::SetEnvironmentVariable("PATH", $newPath, "User")
+
+Write-Host "Successfully switched to CUDA version $selectedCudaVersion and cuDNN version $selectedCudnnVersion"
