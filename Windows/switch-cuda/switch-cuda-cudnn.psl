@@ -4,15 +4,17 @@ if (-NOT ([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdenti
     exit 1
 }
 
+# Set the base paths for CUDA and cuDNN installations
+$cudaBasePath = "C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA"
+$cudnnBasePath = "C:\cudnn"
+
 # Function to list available CUDA versions
 function Get-CudaVersions {
-    $cudaBasePath = "C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA"
     return (Get-ChildItem -Path $cudaBasePath -Directory).Name
 }
 
 # Function to list available cuDNN versions
 function Get-CudnnVersions {
-    $cudnnBasePath = "C:\cudnn"
     return (Get-ChildItem -Path $cudnnBasePath -Directory).Name
 }
 
@@ -35,17 +37,12 @@ $availableCudnnVersions
 $selectedCudnnVersion = Read-Host -Prompt "Enter the desired cuDNN version from the list above"
 
 # Set the CUDA_PATH and CUDNN_PATH environment variables
-$cudaPath = "C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\$selectedCudaVersion"
-$cudnnPath = "C:\cudnn\$selectedCudnnVersion"
+$cudaPath = "$cudaBasePath\$selectedCudaVersion"
+$cudnnPath = "$cudnnBasePath\$selectedCudnnVersion"
 
 [System.Environment]::SetEnvironmentVariable("CUDA_PATH", $cudaPath, "User")
 [System.Environment]::SetEnvironmentVariable("CUDNN_PATH", $cudnnPath, "User")
 
 # Update the PATH environment variable
 $path = [System.Environment]::GetEnvironmentVariable("PATH", "User")
-$newPath = ($path.Split(";") | Where-Object { $_ -notmatch "NVIDIA GPU Computing Toolkit\\CUDA" -and $_ -notmatch "cudnn" }) -join ";"
-$newPath += ";$cudaPath\bin;$cudaPath\libnvvp;$cudnnPath\bin"
-
-[System.Environment]::SetEnvironmentVariable("PATH", $newPath, "User")
-
-Write-Host "Successfully switched to CUDA version $selectedCudaVersion and cuDNN version $selectedCudnnVersion"
+$newPath = ($path.Split(";") | Where-Object { $_ -notmatch "NVIDIA GPU Computing Toolkit\\CUDA" -and $_ -
